@@ -508,11 +508,11 @@
 	attack_hand(mob/user as mob)
 		if(..())
 			return
-		var/list/dat = list("<span style=\"display: inline-flex\">")
+		var/list/dat = list()
 		if (src.temp)
-			dat = text("<TT>[src.temp]</TT><BR><BR><A href='?src=\ref[src];temp=1'>Clear Screen</A>")
+			dat += text("<TT>[src.temp]</TT><BR><BR><A href='?src=\ref[src];temp=1'>Clear Screen</A>")
 		else
-			dat = text("Confirm Identity: <A href='?src=\ref[];scan=1'>[]</A><HR>", src, (src.scan ? text("[]", src.scan.name) : "----------"))
+			dat += text("Confirm Identity: <A href='?src=\ref[];scan=1'>[]</A><HR>", src, (src.scan ? text("[]", src.scan.name) : "----------"))
 			if (src.authenticated)
 				switch(src.screen)
 					if(1.0)
@@ -546,7 +546,6 @@
 					else
 			else
 				dat += text("<A href='?src=\ref[];login=1'>{Log In}</A>", src)
-		dat += "</span>"
 		user.Browse(dat.Join(), "window=secure_bank;title=Bank Records")
 		onclose(user, "secure_bank")
 		return
