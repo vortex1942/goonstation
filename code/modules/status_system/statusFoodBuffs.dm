@@ -66,7 +66,7 @@
 	if (src.stomach_process && src.stomach_process.len)
 		var/obj/gross = pick(src.stomach_process)
 		src.stomach_process -= gross
-		gross.loc = src.loc
+		gross.set_loc(src.loc)
 		return gross
 
 
@@ -340,11 +340,11 @@
 	exclusiveGroup = "Food"
 	maxDuration = 6000
 	unique = 1
-	onAdd(optional)
+	onAdd(optional = 10)
 		. = ..()
 		if(ismob(owner))
 			var/mob/M = owner
-			APPLY_MOB_PROPERTY(M, PROP_EXPLOPROT, src, 1)
+			APPLY_MOB_PROPERTY(M, PROP_EXPLOPROT, src, optional)
 
 	onRemove()
 		. = ..()
@@ -417,4 +417,3 @@
 					var/turf/T = get_turf(owner)
 					T.fluid_react_single("water",5)
 		return
-

@@ -65,6 +65,8 @@
 
 	var/login_success = 0
 
+	var/view_tint
+
 	perspective = EYE_PERSPECTIVE
 	// please ignore this for now thanks in advance - drsingh
 #ifdef PROC_LOGGING
@@ -122,10 +124,10 @@
 /client/Del()
 	if (player_capa && src.login_success)
 		player_cap_grace[src.ckey] = TIME + 2 MINUTES
-
+	/* // THIS THING IS BREAKING THE REST OF THE PROC FOR SOME REASON AND I HAVE NO IDEA WHY
 	if (current_state < GAME_STATE_FINISHED)
 		ircbot.event("logout", src.key)
-
+	*/
 	logTheThing("admin", src, null, " has disconnected.")
 
 	src.images.Cut() //Probably not needed but eh.
@@ -148,6 +150,7 @@
 
 	if(findtext(src.key, "Telnet @"))
 		boutput(src, "Sorry, this game does not support Telnet.")
+		preferences = new
 		sleep(5 SECONDS)
 		del(src)
 		return
@@ -162,6 +165,11 @@
 	player.client = src
 
 	Z_LOG_DEBUG("Client/New", "[src.ckey] - Player set ([player])")
+	
+	// moved preferences from new_player so it's accessible in the client scope
+	if (!preferences)
+		preferences = new
+
 
 	//Assign custom interface datums
 	src.chatOutput = new /datum/chatOutput(src)
@@ -313,10 +321,6 @@
 		del(src)
 		return
 
-	// moved preferences from new_player so it's accessible in the client scope
-	if (!preferences)
-		preferences = new
-
 	Z_LOG_DEBUG("Client/New", "[src.ckey] - Adding to clients")
 
 	clients += src
@@ -347,7 +351,9 @@
 		updateXpRewards()
 
 	SPAWN_DBG(3 SECONDS)
+#ifndef IM_TESTING_SHIT_STOP_BARFING_CHANGELOGS_AT_ME
 		var/is_newbie = 0
+#endif
 		// new player logic, moving some of the preferences handling procs from new_player.Login
 		Z_LOG_DEBUG("Client/New", "[src.ckey] - 3 sec spawn stuff")
 		if (!preferences)
@@ -364,8 +370,8 @@
 				boutput(src, "<span class='alert'>Welcome! You don't have a character profile saved yet, so please create one. If you're new, check out the <a target='_blank' href='https://wiki.ss13.co/Getting_Started#Fundamentals'>quick-start guide</a> for how to play!</span>")
 				//hey maybe put some 'new player mini-instructional' prompt here
 				//ok :)
-#endif
 				is_newbie = 1
+#endif
 			else if(!src.holder)
 				preferences.sanitize_name()
 
@@ -381,10 +387,10 @@
 			if (src.holder && rank_to_level(src.holder.rank) >= LEVEL_MOD) // No admin changelog for goat farts (Convair880).
 				admin_changes()
 #endif
-			if (it_is_ass_day)
+#if ASS_JAM
 				src.verbs += /client/proc/cmd_ass_day_rules
 				src.cmd_ass_day_rules()
-
+#endif
 
 			if (src.byond_version < 513 || src.byond_build < 1526)
 				if (alert(src, "Please update BYOND to the latest version! Would you like to be taken to the download page? Make sure to download the stable release.", "ALERT", "Yes", "No") == "Yes")
@@ -405,6 +411,7 @@
 			preferences.savefile_load(src)
 			load_antag_tokens()
 			load_persistent_bank()
+		src.mob.reset_keymap()
 
 		Z_LOG_DEBUG("Client/New", "[src.ckey] - setjoindate")
 		setJoinDate()
@@ -528,8 +535,16 @@
 
 	src.reputations = new(src)
 
+	// Set view tint
+	view_tint = winget( src, "menu.set_tint", "is-checked" ) == "true"
+
 	if(src.holder && src.holder.level >= LEVEL_CODER)
 		src.control_freak = 0
+
+	if (browse_item_initial_done)
+		SPAWN_DBG(0)
+			sendItemIcons(src)
+
 	Z_LOG_DEBUG("Client/New", "[src.ckey] - new() finished.")
 
 	login_success = 1
@@ -981,7 +996,7 @@ var/global/curr_day = null
 			src.Browse(null, "window=resourcePreload")
 			return
 
-	..()
+	. = ..()
 	return
 
 /client/proc/mute(len = -1)
@@ -1081,6 +1096,12 @@ var/global/curr_day = null
 	set name ="apply-depth-shadow"
 
 	apply_depth_filter() //see _plane.dm
+
+/client/verb/apply_view_tint()
+	set hidden = 1
+	set name ="apply-view-tint"
+
+	view_tint = !view_tint
 
 /client/proc/set_view_size(var/x, var/y)
 	//These maximum values make for a near-fullscreen game view at 32x32 tile size, 1920x1080 monitor resolution.
