@@ -45898,7 +45898,7 @@
 /turf/simulated/floor/plating/airless,
 /area/station/mining/magnet)
 "bHj" = (
-/obj/machinery/portable_reclaimer,
+/obj/machinery/arc_electroplater,
 /turf/simulated/floor/plating/airless,
 /area/station/mining/magnet)
 "bHk" = (
@@ -49338,6 +49338,10 @@
 /obj/machinery/light,
 /turf/simulated/floor/grass/random,
 /area/station/hydroponics/bay)
+"xgc" = (
+/obj/machinery/portable_reclaimer,
+/turf/simulated/floor,
+/area/station/quartermaster/storage)
 
 (1,1,1) = {"
 aaa
@@ -83949,7 +83953,7 @@ bxb
 byh
 bzn
 bAo
-buG
+xgc
 buJ
 bDV
 bEI

@@ -44097,6 +44097,10 @@
 	},
 /turf/simulated/floor/grass/leafy,
 /area/station/ranch)
+"xnD" = (
+/obj/machinery/arc_electroplater,
+/turf/simulated/floor/industrial,
+/area/station/mining/staff_room)
 "xrm" = (
 /obj/decal/tile_edge/line/purple{
 	icon_state = "line1"
@@ -123830,7 +123834,7 @@ bOd
 bOm
 bOq
 bxa
-bxa
+xnD
 bOb
 bPd
 bPq
