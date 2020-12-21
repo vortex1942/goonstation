@@ -1,4 +1,4 @@
-/proc/Artifact_Spawn(var/atom/T,var/forceartitype)
+/proc/Artifact_Spawn(var/atom/T,var/forceartiorigin, var/datum/artifact/forceartitype = null)
 	if (!T)
 		return
 	if (!istype(T,/turf/) && !istype(T,/obj/))
@@ -19,24 +19,31 @@
 
 	var/list/selection_pool = list()
 
-	for (var/datum/artifact/A in artifact_controls.artifact_types)
-		if (A.rarity_class != rarityroll)
-			continue
-		if (istext(forceartitype) && !(forceartitype in A.validtypes))
-			continue
-		selection_pool += A
+	if(forceartitype)
+		selection_pool += forceartitype
+	else
+		for (var/datum/artifact/A as() in concrete_typesof(/datum/artifact))
+			if (initial(A.rarity_class) != rarityroll)
+				continue
+			if (istext(forceartiorigin) && !(forceartiorigin in initial(A.validtypes)))
+				continue
+			selection_pool += A
 
 	if (selection_pool.len < 1)
 		return
 
 	var/datum/artifact/picked = pick(selection_pool)
-	if (!istype(picked,/datum/artifact/))
+
+	var/type = null
+	if(ispath(picked,/datum/artifact/))
+		type = initial(picked.associated_object)	// artifact type
+	else
 		return
 
-	if (istext(forceartitype))
-		new picked.associated_object(T,forceartitype)
+	if (istext(forceartiorigin))
+		new type(T,forceartiorigin)
 	else
-		new picked.associated_object(T)
+		new type(T)
 
 /obj/proc/ArtifactSanityCheck()
 	// This proc is called in any other proc or thing that uses the new artifact shit. If there was an improper artifact variable
@@ -140,7 +147,8 @@
 		return 1
 	var/datum/artifact/A = src.artifact
 	if(A.internal_name)
-		src.name = A.internal_name
+		src.real_name = A.internal_name
+		UpdateName()
 	if (A.activated)
 		return 1
 	if (A.triggers.len < 1 && !A.automatic_activation)
@@ -344,18 +352,6 @@
 					playsound(src.loc, "sound/impact_sounds/Glass_Shards_Hit_1.ogg", 100, 1)
 					ArtifactDevelopFault(80)
 					src.ArtifactTakeDamage(strength * 1.5)
-		if("reliquary") // fragile machinery so no smacking them too hard, also pretty vulnerable to electricity
-			if(stimtype == "force")
-				if (strength >= 20)
-					T.visible_message(pick("<span class='alert'>[src] cracks and splinters!</span>","<span class='alert'>[src] starts to split and break from the impact!</span>"))
-					playsound(src.loc, "sound/impact_sounds/Metal_Hit_Heavy_1.ogg", 100, 1)
-					ArtifactDevelopFault(80)
-					src.ArtifactTakeDamage(strength * 1.5)
-			if(stimtype == "elec")
-				if (strength >= 3000) // max you can get from the electrobox is 5000
-					if (prob(10))
-						T.visible_message(pick("<span class='alert'>[src] buzzes angrily!</span>","<span class='alert'>[src] beeps grumpily!</span>"))
-						src.ArtifactTakeDamage(strength / 1000)
 
 	if (!src || !A)
 		return
@@ -441,8 +437,6 @@
 				T.visible_message("<span class='alert'><B>[src] warps in on itself and vanishes!</B></span>")
 			if("precursor")
 				T.visible_message("<span class='alert'><B>[src] implodes, crushing itself into dust!</B></span>")
-			if("reliquary")
-				T.visible_message("<span class='alert'><B>[src] sparks violently before its internal circuitry falls apart and causes it to collapse!</B></span>")
 
 	qdel(src)
 	return

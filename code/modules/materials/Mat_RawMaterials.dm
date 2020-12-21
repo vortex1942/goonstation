@@ -1,3 +1,4 @@
+/// Material piece
 /obj/item/material_piece
 	name = "bar"
 	desc = "Some sort of processed material bar."
@@ -5,7 +6,8 @@
 	icon_state = "bar"
 	max_stack = INFINITY
 	stack_type = /obj/item/material_piece
-	var/default_material = null // used for prefab bars
+	/// used for prefab bars
+	var/default_material = null
 
 	New()
 		..()
@@ -170,6 +172,33 @@
 	amount = 5
 	setup_material()
 		src.setMaterial(getMaterial("frozenfart"), appearance = 0, setname = 0)
+		..()
+
+/obj/item/material_piece/steel
+	desc = "A processed bar of Steel, a common metal."
+	default_material = "steel"
+	icon_state = "bar"
+
+	setup_material()
+		src.setMaterial(getMaterial("steel"), appearance = 1, setname = 1)
+		..()
+
+/obj/item/material_piece/glass
+	desc = "A cut block of glass, a common crystalline substance."
+	default_material = "glass"
+	icon_state = "block"
+
+	setup_material()
+		src.setMaterial(getMaterial("glass"), appearance = 1, setname = 1)
+		..()
+
+/obj/item/material_piece/copper
+	desc = "A processed bar of copper, a conductive metal."
+	default_material = "copper"
+	icon_state = "bar"
+
+	setup_material()
+		src.setMaterial(getMaterial("copper"), appearance = 1, setname = 1)
 		..()
 
 /obj/item/material_piece/iridiumalloy
@@ -355,4 +384,12 @@
 	icon_state = "coral"
 	setup_material()
 		src.setMaterial(getMaterial("coral"), appearance = 0, setname = 0)
+		..()
+
+/obj/item/material_piece/neutronium
+	name = "neutronium"
+	desc = "Neutrons condensed into a solid form."
+	icon_state = "bar"
+	setup_material()
+		src.setMaterial(getMaterial("neutronium"), appearance = 0, setname = 0)
 		..()

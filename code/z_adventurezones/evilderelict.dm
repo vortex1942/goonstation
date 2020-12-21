@@ -94,7 +94,6 @@ var/maniac_previous_victim = "Unknown"
 	invisibility = 101
 	anchored = 1
 	density = 0
-	var/obj/chaser/master/master = null
 	event_handler_flags = USE_HASENTERED
 
 	HasEntered(atom/movable/AM as mob|obj)
@@ -115,7 +114,6 @@ var/maniac_previous_victim = "Unknown"
 	invisibility = 101
 	anchored = 1
 	density = 0
-	var/obj/chaser/master/master = null
 	event_handler_flags = USE_HASENTERED
 
 	HasEntered(atom/movable/AM as mob|obj)
@@ -231,35 +229,6 @@ var/maniac_previous_victim = "Unknown"
 	icon_state = "bridge"
 	name = "Forgotten Bridge"
 
-//// Jam Mansion 3.0
-/area/crypt/sigma
-	name = "Research Facility Sigma"
-	icon_state = "derelict"
-	sound_loop = 'sound/ambience/spooky/Evilreaver_Ambience.ogg'
-
-/area/crypt/sigma/mainhall
-	icon_state = "chapel"
-	name = "Research Facility Sigma"
-
-/area/crypt/sigma/rd
-	icon_state = "bridge"
-	name = "Director's Quarters"
-
-/area/crypt/sigma/lab
-	icon_state = "toxlab"
-	name = "Laboratory"
-
-/area/crypt/sigma/crew
-	icon_state = "crewquarters"
-	name = "Crew Quarters"
-
-/area/crypt/sigma/kitchen
-	icon_state = "kitchen"
-	name = "Kitchen"
-
-/area/crypt/sigma/storage
-	icon_state = "storage"
-	name = "Storage Rooms"
 
 ///////////////////////////
 

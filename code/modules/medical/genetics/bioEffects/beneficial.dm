@@ -88,7 +88,7 @@
 
 	OnAdd()
 		if (ishuman(owner))
-			overlay_image = image("icon" = 'icons/effects/genetics.dmi', "icon_state" = "elec[owner.bioHolder?.HasEffect("fat") ? "fat" :""]", layer = MOB_EFFECT_LAYER)
+			overlay_image = image("icon" = 'icons/effects/genetics.dmi', "icon_state" = "elec", layer = MOB_EFFECT_LAYER)
 		..()
 		if (istype(owner, /mob/living) && owner:organHolder && owner:organHolder:heart && owner:organHolder:heart:robotic)
 			owner:organHolder:heart:broken = 1
@@ -168,7 +168,12 @@
 		var/mob/living/carbon/human/H = owner
 		H.oxyloss = 0
 		H.losebreath = 0
+		APPLY_MOB_PROPERTY(H, PROP_BREATHLESS, src.type)
 		health_update_queue |= H
+
+	OnRemove()
+		. = ..()
+		REMOVE_MOB_PROPERTY(owner, PROP_BREATHLESS, src.type)
 
 /datum/bioEffect/breathless/contract
 	name = "Airless Breathing"
@@ -310,6 +315,28 @@
 	icon_state  = "dead"
 	isBad = 1
 
+/datum/bioEffect/noir
+	name = "Noir"
+	desc = "The subject generates a light-defying aura, equalizing photons in such a way that make them look completely grayscale."
+	id = "noir"
+	probability = 99
+	stability_loss = 5
+	icon_state  = "noir"
+	msgGain = "You feel chromatic pain."
+	msgLose = "Colors around you begin returning to normal."
+
+	OnAdd()
+		..()
+		if (ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+			animate_fade_grayscale(H, 5)
+
+	OnRemove()
+		..()
+		if (ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+			animate_fade_from_grayscale(H, 5)
+
 ///////////////////
 // General buffs //
 ///////////////////
@@ -381,37 +408,57 @@ var/list/radio_brains = list()
 	lockedChars = list("G","C","A","T")
 	lockedTries = 8
 	stability_loss = 25
-	degrade_to = "fat"
+	degrade_to = "strong"
 	icon_state  = "hulk"
 
 	OnAdd()
 		owner.unlock_medal("It's not easy being green", 1)
 		if (ishuman(owner))
 			var/mob/living/carbon/human/H = owner
-			H.set_body_icon_dirty()
 			APPLY_MOVEMENT_MODIFIER(H, /datum/movement_modifier/hulkstrong, src.type)
+			if(H?.bioHolder?.mobAppearance)
+				var/datum/appearanceHolder/HAH = H.bioHolder.mobAppearance
+				HAH.customization_first_color_original = HAH.customization_first_color
+				HAH.customization_second_color_original = HAH.customization_second_color
+				HAH.customization_third_color_original = HAH.customization_third_color
+				HAH.s_tone_original = HAH.s_tone
+				var/hulk_skin = "#4CBB17" // a striking kelly green
+				if(prob(1)) // just the classics
+					var/gray_af = rand(60, 150) // as consistent as the classics too
+					hulk_skin = rgb(gray_af, gray_af, gray_af)
+				HAH.customization_first_color = "#4F7942" // a pleasant fern green
+				HAH.customization_second_color = "#3F704D" // a bold hunter green
+				HAH.customization_third_color = "#0B6623" // a vibrant forest green
+				HAH.s_tone = hulk_skin
+			H.update_colorful_parts()
+			H.set_body_icon_dirty()
 		..()
-
-	OnMobDraw()
-		if(disposed)
-			return
-
-		if(ishuman(owner))
-			owner:body_standing:overlays += image("icon" = 'icons/effects/genetics.dmi', "icon_state" = "hulk[owner.bioHolder?.HasEffect("fat") ? "fat" :""]", layer = MOB_LAYER)
 
 	OnRemove()
 		if (ishuman(owner))
 			var/mob/living/carbon/human/H = owner
+			if(H?.bioHolder?.mobAppearance) // colorize, but backwards
+				var/datum/appearanceHolder/HAH = H.bioHolder.mobAppearance
+				HAH.customization_first_color = HAH.customization_first_color_original
+				HAH.customization_second_color = HAH.customization_second_color_original
+				HAH.customization_third_color = HAH.customization_third_color_original
+				HAH.s_tone = HAH.s_tone_original
+				if(HAH.mob_appearance_flags & FIX_COLORS) // human -> hulk -> lizard -> nothulk is *bright*
+					HAH.customization_first_color = fix_colors(HAH.customization_first_color)
+					HAH.customization_second_color = fix_colors(HAH.customization_second_color)
+					HAH.customization_third_color = fix_colors(HAH.customization_third_color)
+			H.update_colorful_parts()
 			H.set_body_icon_dirty()
 			REMOVE_MOVEMENT_MODIFIER(H, /datum/movement_modifier/hulkstrong, src.type)
 
 	OnLife()
 		if(..()) return
-		if (owner:health <= 25)
+		var/mob/living/carbon/human/H = owner
+		if (H.health <= 25)
 			timeLeft = 1
 			boutput(owner, "<span class='alert'>You suddenly feel very weak.</span>")
-			owner:changeStatus("weakened", 3 SECONDS)
-			owner:emote("collapse")
+			H.changeStatus("weakened", 3 SECONDS)
+			H.emote("collapse")
 
 /datum/bioEffect/xray
 	name = "X-Ray Vision"
@@ -543,7 +590,7 @@ var/list/radio_brains = list()
 
 	OnAdd()
 		if (ishuman(owner))
-			overlay_image = image("icon" = 'icons/effects/genetics.dmi', "icon_state" = "telekinesishead[owner.bioHolder?.HasEffect("fat") ? "fat" :""]", layer = MOB_LAYER)
+			overlay_image = image("icon" = 'icons/effects/genetics.dmi', "icon_state" = "telekinesishead", layer = MOB_LAYER)
 		..()
 
 /datum/bioEffect/uncontrollable_cloak

@@ -82,6 +82,7 @@ Contains:
 	bound_y = -32
 
 	var/has_moved = FALSE
+	var/maxboom = 0
 
 	var/active = 0
 	var/energy = 10
@@ -143,10 +144,13 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 			grav_pull = 8
 
 /obj/machinery/the_singularity/proc/eat()
-	for (var/X in orange(grav_pull, src.get_center()))
+	for (var/X in range(grav_pull, src.get_center()))
 		LAGCHECK(LAG_LOW)
 		if (!X)
 			continue
+		if (X == src)
+			continue
+
 		var/atom/A = X
 
 		if (A.event_handler_flags & IMMUNE_SINGULARITY)
@@ -181,9 +185,13 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 		step(src, dir)
 		has_moved = TRUE
 
-/obj/machinery/the_singularity/ex_act(severity)
-	if(severity == 1 && prob(30))
-		qdel(src)
+/obj/machinery/the_singularity/ex_act(severity, last_touched, power)
+	if(!maxboom)
+		SPAWN_DBG(0.1 SECONDS)
+			if(severity == 1 && (maxboom ? prob(maxboom*5) : prob(30))) //need a big bomb (TTV+ sized), but a big enough bomb will always clear it
+				qdel(src)
+			maxboom = 0
+	maxboom = max(power, maxboom)
 
 /obj/machinery/the_singularity/Bumped(atom/A)
 	var/gain = 0
@@ -196,6 +204,7 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 
 	if (isliving(A) && !isintangible(A))//if its a mob
 		var/mob/living/L = A
+		L.set_loc(src.get_center())
 		gain = 20
 		if (ishuman(L))
 			var/mob/living/carbon/human/H = A
@@ -236,6 +245,7 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 			gain = 2
 		else
 			var/obj/O = A
+			O.set_loc(src.get_center())
 			O.ex_act(1.0)
 			if (O)
 				qdel(O)
@@ -357,7 +367,7 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 	pulse.icon_state = "emppulse"
 	pulse.name = "emp pulse"
 	pulse.anchored = 1
-	SPAWN_DBG (20)
+	SPAWN_DBG(2 SECONDS)
 		if (pulse)
 			qdel(pulse)
 
@@ -537,7 +547,7 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 		T2 = T
 		var/obj/machinery/containment_field/CF = new/obj/machinery/containment_field/(src, G) //(ref to this gen, ref to connected gen)
 		CF.set_loc(T)
-		CF.dir = field_dir
+		CF.set_dir(field_dir)
 
 	active_dirs |= NSEW
 	G.active_dirs |= oNSEW
@@ -804,7 +814,7 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 	// Added (Convair880).
 	logTheThing("combat", user, null, "was shocked by a containment field at [log_loc(src)].")
 
-	if (user && user.bioHolder)
+	if (user?.bioHolder)
 		if (user.bioHolder.HasEffect("resist_electric") == 2)
 			var/healing = 0
 			if (shock_damage)
@@ -979,7 +989,7 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 /obj/machinery/emitter/attackby(obj/item/W, mob/user)
 	if (ispryingtool(W))
 		if(!anchored)
-			src.dir = turn(src.dir, -90)
+			src.set_dir(turn(src.dir, -90))
 			return
 		else
 			boutput(user, "The emitter is too firmly secured to be rotated!")
@@ -1192,16 +1202,14 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 	if(src.active==1)
 		src.active = 0
 		icon_state = "ca_deactive"
-		if(CU)
-			CU.updatecons()
+		CU?.updatecons()
 		boutput(user, "You turn off the collector array.")
 		return
 
 	if(src.active==0)
 		src.active = 1
 		icon_state = "ca_active"
-		if(CU)
-			CU.updatecons()
+		CU?.updatecons()
 		boutput(user, "You turn on the collector array.")
 		return
 
@@ -1226,8 +1234,7 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 		src.P = W
 		W.set_loc(src)
 		user.u_equip(W)
-		if(CU)
-			CU.updatecons()
+		CU?.updatecons()
 		updateicon()
 	else if (ispryingtool(W))
 		if(!P)
@@ -1236,8 +1243,7 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 		Z.set_loc(get_turf(src))
 		Z.layer = initial(Z.layer)
 		src.P = null
-		if(CU)
-			CU.updatecons()
+		CU?.updatecons()
 		updateicon()
 	else
 		src.add_fingerprint(user)
@@ -1696,10 +1702,11 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 	else
 		var/seconds = src.time % 60
 		var/minutes = (src.time - seconds) / 60
+		var/flick_seperator = (seconds % 2 == 0)  || !src.timing
 		minutes = minutes < 10 ? "0[minutes]" : "[minutes]"
 		seconds = seconds < 10 ? "0[seconds]" : "[seconds]"
 
-		return "[minutes][seconds % 2 == 0 ? ":" : " "][seconds]"
+		return "[minutes][flick_seperator ? ":" : " "][seconds]"
 
 /obj/machinery/the_singularitybomb/proc/get_interface()
 	return {"<html>
@@ -1837,41 +1844,3 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 					</div>
 				</body>
 			</html>"}
-
-
-/obj/item/ez_singulo
-	name = "Ez Singularity Engine"
-	icon = 'icons/obj/items/grenade.dmi'
-	icon_state = "graviton"
-	inhand_image_icon = 'icons/mob/inhand/hand_weapons.dmi'
-	item_state = "emp"
-	var/activated = FALSE
-	var/radius = 3
-
-	attack_self(mob/user)
-		if(activated)
-			. = ..()
-			return
-		else
-			src.activated = TRUE
-			boutput(user, "You prime [src]. Three seconds until activation.")
-			SPAWN_DBG(3 SECONDS)
-				src.build_a_singulo()
-
-
-	proc/build_a_singulo()
-		if(!isturf(src.loc))
-			src.activated = FALSE
-			return
-		for(var/turf/T in block(locate(src.x - radius, src.y - radius, src.z), locate(src.x + radius, src.y + radius, src.z)))
-			T.ReplaceWith(/turf/simulated/floor/engine, 0, 1, 0, 0)
-		new /obj/machinery/the_singularitygen(src.loc)
-		for(var/dir in ordinal)
-			var/turf/T = get_steps(src.loc, dir, radius)
-			var/obj/machinery/field_generator/gen = new(T)
-			gen.set_active(1)
-			gen.state = 3
-			gen.power = 250
-			gen.anchored = 1
-			icon_state = "Field_Gen +a"
-		qdel(src)

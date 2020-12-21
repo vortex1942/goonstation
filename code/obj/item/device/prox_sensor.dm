@@ -69,7 +69,7 @@
 	return
 
 /obj/item/device/prox_sensor/HasProximity(atom/movable/AM as mob|obj)
-	if (istype(AM, /obj/projectile) || AM.invisibility > 2)
+	if (isobserver(AM) || iswraith(AM) || isintangible(AM) || istype(AM, /obj/projectile) || AM.invisibility > 2)
 		return
 	if (AM.move_speed < 12)
 		src.sense()
@@ -90,7 +90,7 @@
 	user.u_equip(src)
 	src.set_loc(R)
 	R.part2 = src
-	R.dir = src.dir
+	R.set_dir(src.dir)
 	src.add_fingerprint(user)
 	return
 
@@ -172,6 +172,6 @@
 	return
 
 /obj/item/device/prox_sensor/Move()
-	..()
+	. = ..()
 	src.sense()
 	return

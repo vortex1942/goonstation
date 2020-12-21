@@ -1,4 +1,4 @@
-// Highly modular HUD for critters.
+/// Highly modular HUD for critters.
 /datum/hud/critter
 	var/list/hands = list()
 	var/list/equipment = list()
@@ -256,7 +256,7 @@
 			remove_screen(G)
 
 		for(var/datum/statusEffect/S in src.statusUiElements) //Remove stray effects.
-			if(!master.statusEffects || !(S in master.statusEffects) || !S.visible)
+			if(!master.statusEffects || !(S in master.statusEffects))
 				pool(statusUiElements[S])
 				src.statusUiElements.Remove(S)
 				qdel(S)

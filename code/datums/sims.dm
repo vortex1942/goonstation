@@ -142,7 +142,7 @@
 		onLife()
 
 	proc/mayStandardDeplete()
-		if (holder && holder.owner && (holder.owner.nodamage || holder.owner.hibernating))
+		if (holder?.owner && (holder.owner.nodamage || holder.owner.hibernating))
 			value = 100
 			return 0
 		return 1
@@ -201,7 +201,7 @@
 
 			getWarningMessage()
 				if (value < 25)
-					return pick("<span class='alert'>You are [pick("utterly", "absolutely", "positively", "completely", "extremely", "perfectly")] dry!</span>", "<span class='alert'>You feel [pick("like you could die of thirst any moment now", "as dry as [pick("sand", "the moon", "solid carbon dioxyde", "bones")]")]!</span>")
+					return pick("<span class='alert'>You are [pick("utterly", "absolutely", "positively", "completely", "extremely", "perfectly")] dry!</span>", "<span class='alert'>You feel [pick("like you could die of thirst any moment now", "as dry as [pick("sand", "the moon", "solid carbon dioxide", "bones")]")]!</span>")
 				else if (value < 50)
 					return "<span class='alert'>You feel [pick("thirsty", "dry")]!</span>"
 				else if (value < 75)
@@ -756,7 +756,7 @@ var/global/datum/simsControl/simsController = new()
 			base_mood_value = 1
 		var/color_t = getMoodActionMultiplier() / base_mood_value
 
-		if(simsController && simsController.provide_plumbobs)
+		if(simsController?.provide_plumbobs)
 			if (!plumbob)
 				attach_plum(owner)
 

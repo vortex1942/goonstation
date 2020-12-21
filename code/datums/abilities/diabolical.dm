@@ -1,4 +1,4 @@
-//////////////////////////////////////////// Setup //////////////////////////////////////////////////
+/* 	/		/		/		/		/		/		Setup		/		/		/		/		/		/		/		/		*/
 
 /mob/proc/make_merchant()
 	if (ishuman(src))
@@ -15,7 +15,7 @@
 
 	else return
 
-//////////////////////////////////////////// Ability holder /////////////////////////////////////////
+/* 	/		/		/		/		/		/		Ability Holder		/		/		/		/		/		/		/		/		*/
 /obj/screen/ability/topBar/merchant
 	clicked(params)
 		var/datum/targetable/merchant/spell = owner
@@ -222,6 +222,7 @@
 		if (H.traitHolder.hasTrait("training_chaplain"))
 			boutput(holder.owner, "<span class='alert'>[H] has divine protection from magic.</span>")
 			H.visible_message("<span class='alert'>The spell has no effect on [H]!</span>")
+			JOB_XP(H, "Chaplain", 2)
 			return
 
 		holder.owner.say("See you in hell.")

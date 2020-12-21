@@ -188,8 +188,7 @@
 		bonus = 0
 
 	proc/transferOwnership(var/newbody)
-		if(owner)
-			owner.detach_hud(hud)
+		owner?.detach_hud(hud)
 		owner = newbody
 		if(owner)
 			owner.attach_hud(hud)
@@ -218,11 +217,17 @@
 	proc/onAbilityStat()
 		return
 
-	proc/deductPoints(cost)
+	proc/deductPoints(cost, target_ah_type)
 		if (!usesPoints || cost == 0)
 			return
 
 		points -= cost
+
+	proc/addPoints(add_points, target_ah_type)
+		if (!usesPoints)
+			return
+
+		points += add_points
 
 	proc/suspendAllAbilities()
 		src.suspended = src.abilities.Copy()
@@ -468,7 +473,7 @@
 
 	//WIRE TOOLTIPS
 	MouseEntered(location, control, params)
-		if (src && src.owner && usr.client.tooltipHolder && control == "mapwindow.map")
+		if (src?.owner && usr.client.tooltipHolder && control == "mapwindow.map")
 			usr.client.tooltipHolder.showHover(src, list(
 				"params" = params,
 				"title" = src.name,
@@ -492,13 +497,13 @@
 
 	New()
 		..()
-		SPAWN_DBG(10) //sorry, some race condition i couldt figure out
+		SPAWN_DBG(1 SECOND) //sorry, some race condition i couldt figure out
 			if (ishuman(owner?.owner))
 				var/mob/living/carbon/human/H = owner?.owner
 				H.hud?.update_ability_hotbar()
 
 	disposing()
-		if(owner && owner.hud)
+		if(owner?.hud)
 			owner.hud.remove_object(src)
 		..()
 
@@ -511,7 +516,7 @@
 	proc/update_on_hud(var/pos_x = 0,var/pos_y = 0)
 		src.screen_loc = "NORTH-[pos_y],[pos_x]"
 
-		if(owner && owner.hud)
+		if(owner?.hud)
 			owner.hud.remove_object(src)
 			owner.hud.add_object(src, HUD_LAYER, src.screen_loc)
 
@@ -1027,7 +1032,7 @@
 	layer = 61
 	var/x_offset = 0
 	var/y_offset = 0
-	appearance_flags = RESET_COLOR
+	appearance_flags = RESET_COLOR | LONG_GLIDE | PIXEL_SCALE
 	vis_flags = VIS_INHERIT_ID
 
 /datum/abilityHolder/composite
@@ -1189,9 +1194,17 @@
 		for (var/datum/abilityHolder/H in holders)
 			H.StatAbilities()
 
-	deductPoints(cost)
+	deductPoints(cost, target_ah_type)
 		for (var/datum/abilityHolder/H in holders)
+			if (target_ah_type && !istype(H, target_ah_type))
+				continue
 			H.deductPoints(cost)
+
+	addPoints(add_points, target_ah_type)
+		for (var/datum/abilityHolder/H in holders)
+			if (target_ah_type && !istype(H, target_ah_type))
+				continue
+			H.addPoints(add_points)
 
 	suspendAllAbilities()
 		for (var/datum/abilityHolder/H in holders)

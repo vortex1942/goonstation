@@ -29,7 +29,8 @@
 
 // misc and unused
 
-#define LANDMARK_TWITCHY_BILL_RESPAWN "shitty_bill_respawn" // Twitch Plays Shitty Bill respawn points
+/// Twitch Plays Shitty Bill respawn points
+#define LANDMARK_TWITCHY_BILL_RESPAWN "shitty_bill_respawn"
 #define LANDMARK_PRISONWARP "prisonwarp"
 #define LANDMARK_PRISONSECURITYWARP "prisonsecuritywarp"
 #define LANDMARK_THUNDERDOME_1 "tdome1"
@@ -64,10 +65,17 @@
 #define LANDMARK_FALL_MOON_HEMERA "moonfall_hemera" // Hemera lunar office elevator shaft
 #define LANDMARK_FALL_MOON_MUSEUM "moonfall_museum" // Lunar museum elevator shaft
 #define LANDMARK_FALL_SEA "seafall" // Oshan trench elevator
+#define LANDMARK_FALL_SPACEMAS "spacemasfall" // Merry Spacemas!
 
 // misc adventure zone stuff
 
-#define LANDMARK_TELESCI "telesci" // allowed turfs for telesci
+/// allowed turfs for telesci
+#define LANDMARK_TELESCI "telesci"
 #define LANDMARK_LRT "lrt landmark"
 #define LANDMARK_SAMOSTREL_WARP "samostrel"
 #define LANDMARK_EVIL_CHEF_CORPSE "evilchef_corpse"
+
+// Visual mirror warp modes
+#define LANDMARK_VM_WARP_NONE 0
+#define LANDMARK_VM_WARP_ALL 1
+#define LANDMARK_VM_WARP_NON_ADMINS 2

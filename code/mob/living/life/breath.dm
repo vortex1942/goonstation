@@ -71,7 +71,7 @@
 						owner.show_submerged_image(4)
 
 			else if (T.active_airborne_liquid)
-				if (!(human_owner?.wear_mask && (human_owner?.wear_mask.c_flags & BLOCKSMOKE || (human_owner?.wear_mask.c_flags & MASKINTERNALS && human_owner?.internal))))
+				if (!issmokeimmune(owner))
 					//underwater = T.active_airborne_liquid
 					var/obj/fluid/F = T.active_airborne_liquid
 					F.force_mob_to_ingest(owner, mult)
@@ -87,8 +87,8 @@
 
 		//if (istype(loc, /obj/machinery/clonepod)) return
 
-		if (owner.reagents)
-			if (owner.reagents.has_reagent("lexorin") || HAS_MOB_PROPERTY(owner, PROP_REBREATHING)) return
+		if (HAS_MOB_PROPERTY(owner, PROP_REBREATHING))
+			return
 
 		// Changelings generally can't take OXY/LOSEBREATH damage...except when they do.
 		// And because they're excluded from the breathing procs, said damage didn't heal
@@ -97,7 +97,7 @@
 		// If you have the breathless effect, same deal - you'd never heal oxy damage
 		// If your mutant race doesn't need oxygen from breathing, ya no losebreath
 		// so, now you do
-		if (ischangeling(owner) || (owner.bioHolder && owner.bioHolder.HasEffect("breathless") || (human_owner?.mutantrace && !human_owner?.mutantrace.needs_oxy)))
+		if (ischangeling(owner) || HAS_MOB_PROPERTY(owner, PROP_BREATHLESS))
 			if (owner.losebreath)
 				owner.losebreath = 0
 			if (owner.get_oxygen_deprivation())
@@ -187,7 +187,7 @@
 	proc/handle_breath(datum/gas_mixture/breath, var/atom/underwater = 0, var/mult = 1) //'underwater' really applies for any reagent that gets deep enough. but what ever
 		if (owner.nodamage) return
 		var/area/A = get_area(owner)
-		if( A && A.sanctuary )
+		if( A?.sanctuary )
 			return
 		// Looks like we're in space
 		// or with recent atmos changes, in a room that's had a hole in it for any amount of time, so now we check src.loc
@@ -272,7 +272,7 @@
 				owner.take_oxygen_deprivation(1.8 * mult) // Lets hurt em a little, let them know we mean business
 				if (world.time - owner.co2overloadtime > 300) // They've been in here 30s now, lets start to kill them for their own good!
 					owner.take_oxygen_deprivation(7 * mult)
-			if (prob(20)) // Lets give them some chance to know somethings not right though I guess.
+			if (prob(percentmult(20, mult))) // Lets give them some chance to know somethings not right though I guess.
 				owner.emote("cough")
 		else
 			owner.co2overloadtime = 0
@@ -292,7 +292,7 @@
 					if (SA_pp > SA_sleep_min) // Enough to make us sleep as well
 						owner.sleeping = max(owner.sleeping, 2)
 				else if (SA_pp > 0.01)	// There is sleeping gas in their lungs, but only a little, so give them a bit of a warning
-					if (prob(20))
+					if (prob(percentmult(20, mult)))
 						owner.emote(pick("giggle", "laugh"))
 
 		var/FARD_pp = (breath.farts/TOTAL_MOLES(breath))*breath_pressure

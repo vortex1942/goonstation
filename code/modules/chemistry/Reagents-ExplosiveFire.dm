@@ -323,11 +323,12 @@ datum
 
 					var/checkdist = get_dist(M, location)
 					var/weak = max(0, holder.get_reagent_amount(id) * 0.2 * (3 - checkdist))
-					var/misstep = 40
+					var/misstep = clamp(1 + 6 * (5 - checkdist), 0, 40)
 					var/ear_damage = max(0, holder.get_reagent_amount(id) * 0.2 * (3 - checkdist))
 					var/ear_tempdeaf = max(0, holder.get_reagent_amount(id) * 0.2 * (5 - checkdist)) //annoying and unfun so reduced dramatically
+					var/stamina = clamp(holder.get_reagent_amount(id) * (5 + 1 * (7 - checkdist)), 0, 120)
 
-					M.apply_sonic_stun(weak, 0, misstep, 0, 0, ear_damage, ear_tempdeaf)
+					M.apply_sonic_stun(weak, 0, misstep, 0, 0, ear_damage, ear_tempdeaf, stamina)
 
 				for (var/mob/living/silicon/S in all_hearers(world.view, location))
 					if (src.no_fluff == 0)
@@ -537,7 +538,6 @@ datum
 			fluid_b = 150
 			transparency = 150
 			viscosity = 0.7
-			volatility = 2.5
 			minimum_reaction_temperature = 1000
 
 			reaction_temperature(exposed_temperature, exposed_volume)
@@ -877,7 +877,7 @@ datum
 				is_dry = 0
 
 			proc/bang()
-				if(holder && holder.my_atom)
+				if(holder?.my_atom)
 					holder.my_atom.visible_message("<b>The powder detonates!</b>")
 
 					var/datum/effects/system/bad_smoke_spread/smoke = new /datum/effects/system/bad_smoke_spread()
