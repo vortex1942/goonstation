@@ -47408,13 +47408,6 @@
 /obj/item/pen/crayon/rainbow,
 /turf/simulated/floor/plating/random,
 /area/station/maintenance/inner/central)
-"cuz" = (
-/obj/disposalpipe/segment/mail,
-/obj/machinery/arc_electroplater,
-/turf/simulated/floor/shuttlebay{
-	name = "reinforced plating"
-	},
-/area/station/quartermaster/refinery)
 "cSE" = (
 /obj/machinery/door/airlock/pyro/security/alt{
 	req_access_txt = "1"
@@ -84978,7 +84971,7 @@ bvS
 bKw
 bNd
 bOl
-cuz
+bOl
 bQo
 bRn
 bJE
