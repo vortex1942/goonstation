@@ -193,9 +193,9 @@
 		setProperty("rangedprot", 0.5)
 
 /obj/item/clothing/suit/bio_suit/attackby(obj/item/W, mob/user)
-	var/turf/T = usr.loc
+	var/turf/T = user.loc
 	if(istype(W, /obj/item/clothing/suit/armor/vest))
-		boutput(usr, "<span class='notice'>You attach [W] to [src].</span>")
+		boutput(user, "<span class='notice'>You attach [W] to [src].</span>")
 		if (istype(src, /obj/item/clothing/suit/bio_suit/paramedic))
 			new/obj/item/clothing/suit/bio_suit/paramedic/armored(T)
 		else
@@ -1088,6 +1088,13 @@
 			desc = "A syndicate issue combat dress system, pressurized for space travel."
 			icon_state = "syndie_specialist-medic"
 			item_state = "syndie_specialist-medic"
+
+		body_parts_covered = TORSO|LEGS|ARMS
+		permeability_coefficient = 0.01
+
+		setupProperties()
+			..()
+			setProperty("viralprot", 50)
 
 		infiltrator
 			name = "specialist operative espionage suit"

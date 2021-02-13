@@ -7,6 +7,7 @@
 	icon = 'icons/obj/bots/aibots.dmi'
 	icon_state = "firebot0"
 	event_handler_flags = USE_PROXIMITY | USE_FLUID_ENTER | USE_CANPASS
+	flags =  FPRINT | FLUID_SUBMERGE | TGUI_INTERACTIVE | DOORPASS
 	layer = 5.0 //TODO LAYER
 	density = 0
 	anchored = 0
@@ -431,11 +432,13 @@
 
 	else if (istype(W, /obj/item/pen))
 		var/t = input(user, "Enter new robot name", src.name, src.created_name) as text
+		if(t && t != src.name && t != src.created_name)
+			phrase_log.log_phrase("bot-fire", t)
 		t = strip_html(replacetext(t, "'",""))
 		t = copytext(t, 1, 45)
 		if (!t)
 			return
-		if (!in_range(src, usr) && src.loc != usr)
+		if (!in_interact_range(src, user) && src.loc != user)
 			return
 
 		src.created_name = t
